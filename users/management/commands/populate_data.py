@@ -40,8 +40,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Database populated successfully!'))
         self.stdout.write(self.style.SUCCESS(''))
         self.stdout.write(self.style.SUCCESS('Test users created:'))
-        self.stdout.write(self.style.SUCCESS('  Client: client / client123'))
-        self.stdout.write(self.style.SUCCESS('  Worker: worker / worker123'))
+        self.stdout.write(self.style.SUCCESS('  Admin: admin / admin123 (Администратор)'))
+        self.stdout.write(self.style.SUCCESS('  Worker: worker / worker123 (Работник)'))
+        self.stdout.write(self.style.SUCCESS('  Client: client / client123 (Клиент)'))
 
     def create_groups(self):
         Group.objects.get_or_create(name='Клиенты')
@@ -49,6 +50,23 @@ class Command(BaseCommand):
         self.stdout.write('✓ Groups created')
 
     def create_users(self):
+        # Суперпользователь (администратор)
+        admin, created = User.objects.get_or_create(
+            username='admin',
+            defaults={
+                'email': 'admin@ronix-l.ru',
+                'first_name': 'Администратор',
+                'last_name': 'Системы',
+                'role': 'worker',
+                'phone': '+7 (999) 000-00-00',
+                'is_superuser': True,
+                'is_staff': True,
+            }
+        )
+        if created:
+            admin.set_password('admin123')
+            admin.save()
+        
         # Клиент
         client, created = User.objects.get_or_create(
             username='client',
