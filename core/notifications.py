@@ -20,6 +20,11 @@ def send_email_notification(subject, template_name, context, recipient_list):
         context: Контекст для шаблона
         recipient_list: Список email адресов получателей
     """
+    # Если email не настроен, пропускаем отправку
+    if not settings.EMAIL_HOST_USER:
+        logger.info(f"Email не настроен, пропуск отправки: {subject}")
+        return False
+    
     try:
         # Рендерим HTML версию
         html_message = render_to_string(template_name, context)
@@ -32,7 +37,7 @@ def send_email_notification(subject, template_name, context, recipient_list):
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=recipient_list,
             html_message=html_message,
-            fail_silently=False,
+            fail_silently=True,
         )
         logger.info(f"Email отправлен: {subject} -> {recipient_list}")
         return True
