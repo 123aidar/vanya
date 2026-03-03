@@ -5,7 +5,7 @@ Management command to populate the database with sample data.
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
 from users.models import User
-from inventory.models import Category, Component, Supplier, Service, Movement
+from inventory.models import Category, Component, Supplier, Service
 from orders.models import Order, OrderItem
 from decimal import Decimal
 from datetime import datetime, timedelta
@@ -35,9 +35,6 @@ class Command(BaseCommand):
         
         # Создаём услуги
         self.create_services()
-        
-        # Создаём движения товаров (поставки)
-        self.create_movements()
         
         # Создаём заявки
         self.create_orders()
@@ -269,41 +266,6 @@ class Command(BaseCommand):
             )
         
         self.stdout.write('✓ Services created')
-
-    def create_movements(self):
-        """Создаём движения товаров (поставки) за 2026 год"""
-        worker = User.objects.get(username='worker')
-        suppliers = list(Supplier.objects.all())
-        components = list(Component.objects.all())
-        
-        # Создаём по 3-5 поставок для разных компонентов в течение года
-        start_date = datetime(2026, 1, 1)
-        
-        for i in range(20):  # Создаём 20 поставок
-            # Случайная дата в 2026 году
-            days_offset = random.randint(0, 90)  # Первые 3 месяца года
-            movement_date = start_date + timedelta(days=days_offset)
-            
-            # Выбираем случайный компонент и поставщика
-            component = random.choice(components)
-            supplier = random.choice(suppliers)
-            
-            # Количество от 50 до 500
-            quantity = random.randint(50, 500)
-            
-            Movement.objects.get_or_create(
-                component=component,
-                date=movement_date,
-                movement_type='in',
-                defaults={
-                    'quantity': quantity,
-                    'supplier': supplier,
-                    'user': worker,
-                    'notes': f'Поставка от {supplier.name}',
-                }
-            )
-        
-        self.stdout.write('✓ Movements created (20 поставок)')
 
     def create_orders(self):
         """Создаём заявки за 2026 год с разными статусами"""
