@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production'
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Получаем домен Railway из переменных окружения
-RAILWAY_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN', 'lilichka.up.railway.app')
+RAILWAY_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
 
 ALLOWED_HOSTS = [
     'localhost',
