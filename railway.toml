@@ -1,10 +1,6 @@
 [build]
 builder = "NIXPACKS"
 
-[build.nixpacksSettings]
-# Команды перед сборкой
-nixpacksPlan = { setup = ["pip install -r requirements.txt"], buildImage = "python:3.11" }
-
 [deploy]
 startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn ronix_project.wsgi --timeout 120 --workers 2"
 restartPolicyType = "ON_FAILURE"
