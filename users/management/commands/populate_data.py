@@ -18,6 +18,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.SUCCESS('Starting data population...'))
         
+        # Проверяем, есть ли уже данные в БД
+        if self._database_has_data():
+            self.stdout.write(self.style.WARNING('⚠ База данных уже содержит данные. Пропускаем создание тестовых данных.'))
+            self.stdout.write(self.style.SUCCESS('Используйте существующие учётные записи для входа.'))
+            return
+        
+        self.stdout.write(self.style.SUCCESS('База данных пустая. Создаются тестовые данные...'))
+        
         # Создаём группы
         self.create_groups()
         
@@ -39,12 +47,28 @@ class Command(BaseCommand):
         # Создаём заявки
         self.create_orders()
         
-        self.stdout.write(self.style.SUCCESS('Database populated successfully!'))
+        self.stdout.write(self.style.SUCCESS('✅ База данных успешно заполнена тестовыми данными!'))
         self.stdout.write(self.style.SUCCESS(''))
-        self.stdout.write(self.style.SUCCESS('Test users created:'))
+        self.stdout.write(self.style.SUCCESS('Созданные учётные записи:'))
         self.stdout.write(self.style.SUCCESS('  Worker: worker / worker123 (Полный доступ)'))
         self.stdout.write(self.style.SUCCESS('  Client: client / client123 (Минимальный доступ)'))
         self.stdout.write(self.style.SUCCESS('  + 5 дополнительных клиентов (client2-6 / client123)'))
+    
+    def _database_has_data(self):
+        """Проверяет, содержит ли БД уже данные"""
+        # Проверяем наличие тестовых пользователей
+        if User.objects.filter(username__in=['worker', 'client']).exists():
+            return True
+        
+        # Проверяем наличие заявок
+        if Order.objects.exists():
+            return True
+        
+        # Проверяем наличие компонентов
+        if Component.objects.exists():
+            return True
+        
+        return False
 
     def create_groups(self):
         Group.objects.get_or_create(name='Клиенты')
@@ -306,8 +330,9 @@ class Command(BaseCommand):
         start_date = datetime(2026, 1, 1)
         created_orders = 0
         
-        # Создаём 30-40 заявок за первые 3 месяца 2026 года
-        for i in range(35):
+        # Создаём 60-80 заявок за первые 3 месяца 2026 года
+        num_orders = random.randint(60, 80)
+        for i in range(num_orders):
             # Случайная дата
             days_offset = random.randint(0, 90)
             order_date = start_date + timedelta(days=days_offset)
