@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models import Sum, Count, Q, F
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from inventory.models import Component, Category, StockMovement
 from orders.models import Order, OrderItem
 from decimal import Decimal
@@ -52,9 +52,10 @@ def inventory_report(request):
     
     # Фильтрация по дате создания компонентов
     if date_from:
-        components = components.filter(created_at__gte=date_from)
+        components = components.filter(created_at__date__gte=date_from)
     if date_to:
-        components = components.filter(created_at__lte=date_to)
+        # Включаем весь день до конца
+        components = components.filter(created_at__date__lte=date_to)
     
     # Добавляем вычисленные суммы для каждого компонента
     components_with_totals = []
@@ -123,9 +124,10 @@ def orders_report(request):
     orders = Order.objects.select_related('client', 'assigned_to').all()
     
     if date_from:
-        orders = orders.filter(created_at__gte=date_from)
+        orders = orders.filter(created_at__date__gte=date_from)
     if date_to:
-        orders = orders.filter(created_at__lte=date_to)
+        # Включаем весь день до конца
+        orders = orders.filter(created_at__date__lte=date_to)
     
     # Статистика
     total_orders = orders.count()
@@ -187,9 +189,10 @@ def financial_report(request):
     orders = Order.objects.filter(status='completed')
     
     if date_from:
-        orders = orders.filter(completed_at__gte=date_from)
+        orders = orders.filter(completed_at__date__gte=date_from)
     if date_to:
-        orders = orders.filter(completed_at__lte=date_to)
+        # Включаем весь день до конца
+        orders = orders.filter(completed_at__date__lte=date_to)
     
     # Статистика
     total_revenue = orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')

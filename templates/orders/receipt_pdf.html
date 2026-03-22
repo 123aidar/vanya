@@ -6,7 +6,13 @@
     <style>
         @page {
             size: A4;
-            margin: 20mm 15mm;
+            margin: 15mm 10mm;
+        }
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
         }
         * {
             margin: 0;
@@ -14,129 +20,137 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'DejaVu Sans', 'Arial', sans-serif;
-            font-size: 10pt;
-            line-height: 1.5;
+            font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
             color: #000;
         }
         .receipt-container {
-            max-width: 180mm;
+            max-width: 100%;
+            width: 190mm;
             margin: 0 auto;
         }
         /* Шапка */
         .header {
             text-align: center;
             border-bottom: 2px solid #000;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
         }
         .company-name {
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .company-details {
-            font-size: 8pt;
-            line-height: 1.4;
+            font-size: 7.5pt;
+            line-height: 1.3;
             color: #333;
         }
         /* Заголовок чека */
         .receipt-title {
             text-align: center;
-            margin: 15px 0;
+            margin: 12px 0;
         }
         .receipt-title h1 {
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .receipt-number {
-            font-size: 11pt;
+            font-size: 10pt;
             color: #333;
         }
         /* Информационная таблица */
         .info-section {
-            margin: 15px 0;
-            font-size: 9.5pt;
+            margin: 12px 0;
+            font-size: 9pt;
         }
         .info-row {
-            display: table;
-            width: 100%;
-            margin-bottom: 4px;
+            display: flex;
+            margin-bottom: 3px;
         }
         .info-label {
-            display: table-cell;
-            width: 150px;
+            flex: 0 0 140px;
             font-weight: bold;
         }
         .info-value {
-            display: table-cell;
+            flex: 1;
+            word-wrap: break-word;
         }
         /* Таблица товаров */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 9.5pt;
+            margin: 12px 0;
+            font-size: 8.5pt;
+            table-layout: fixed;
         }
         .items-table th {
             background-color: #e8e8e8;
             border: 1px solid #000;
-            padding: 8px 6px;
+            padding: 6px 4px;
             font-weight: bold;
             text-align: center;
+            font-size: 8.5pt;
         }
         .items-table td {
             border: 1px solid #000;
-            padding: 8px 6px;
+            padding: 6px 4px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .items-table .col-num {
-            width: 30px;
+            width: 8%;
             text-align: center;
         }
         .items-table .col-name {
+            width: 44%;
             text-align: left;
         }
         .items-table .col-qty {
-            width: 70px;
+            width: 16%;
             text-align: right;
         }
         .items-table .col-price {
-            width: 85px;
+            width: 16%;
             text-align: right;
         }
         .items-table .col-sum {
-            width: 95px;
+            width: 16%;
             text-align: right;
         }
         .items-table .item-article {
-            font-size: 8pt;
+            font-size: 7pt;
             color: #666;
+            display: block;
+            margin-top: 2px;
         }
         .items-table tfoot td {
             background-color: #f5f5f5;
             font-weight: bold;
-            font-size: 11pt;
+            font-size: 10pt;
         }
         /* Примечания */
         .notes-section {
             background-color: #fffbf0;
             border-left: 3px solid #ffc107;
-            padding: 10px;
-            margin: 15px 0;
-            font-size: 9pt;
+            padding: 8px;
+            margin: 12px 0;
+            font-size: 8.5pt;
+            word-wrap: break-word;
         }
         /* Подвал */
         .footer {
-            margin-top: 30px;
-            padding-top: 12px;
+            margin-top: 20px;
+            padding-top: 10px;
             border-top: 1px solid #ccc;
             text-align: center;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #555;
         }
         .footer p {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -225,6 +239,16 @@
             {{ receipt.notes }}
         </div>
         {% endif %}
+        
+        <!-- Гарантийные обязательства -->
+        <div class="notes-section" style="background-color: #f0f8ff; border-left-color: #0066cc;">
+            <strong>Гарантийные обязательства:</strong><br>
+            <div style="font-size: 8pt; margin-top: 5px;">
+                ООО НПФ «Роникс-Л» предоставляет гарантию на выполненные работы и установленные комплектующие сроком на 30 дней с момента выдачи чека. 
+                Гарантия не распространяется на механические повреждения, попадание влаги и неправильную эксплуатацию. 
+                Для гарантийного обслуживания необходимо предъявить данный чек.
+            </div>
+        </div>
         
         <!-- Подвал -->
         <div class="footer">
