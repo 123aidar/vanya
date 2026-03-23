@@ -9,13 +9,18 @@
             <h1 class="display-5 fw-bold">
                 <i class="bi bi-clipboard-check"></i> Отчет по заявкам
             </h1>
-            {% if date_from or date_to %}
-            <p class="text-muted">
-                Период: 
-                {% if date_from %}с {{ date_from }}{% endif %}
-                {% if date_to %}по {{ date_to }}{% endif %}
+            <p class="text-muted mb-0">
+                Период отчета:
+                {% if date_from and date_to %}
+                    с {{ date_from }} по {{ date_to }}
+                {% elif date_from %}
+                    с {{ date_from }}
+                {% elif date_to %}
+                    по {{ date_to }}
+                {% else %}
+                    за все время
+                {% endif %}
             </p>
-            {% endif %}
         </div>
     </div>
     
@@ -88,13 +93,17 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Детализация заявок</h5>
             <div>
-                {% if date_from or date_to %}
-                    <small class="text-muted">
-                        Период: 
-                        {% if date_from %}с {{ date_from|date:"d.m.Y" }}{% endif %}
-                        {% if date_to %}по {{ date_to|date:"d.m.Y" }}{% endif %}
-                    </small>
-                {% endif %}
+                <small class="text-muted">
+                    {% if date_from and date_to %}
+                        Период: с {{ date_from }} по {{ date_to }}
+                    {% elif date_from %}
+                        Период: с {{ date_from }}
+                    {% elif date_to %}
+                        Период: по {{ date_to }}
+                    {% else %}
+                        Период: за все время
+                    {% endif %}
+                </small>
             </div>
         </div>
         <div class="card-body">
