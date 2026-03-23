@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models import Sum, Count, Q, F
 from django.utils import timezone
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import timedelta, datetime
 from inventory.models import Component, Category, StockMovement
 from orders.models import Order, OrderItem
@@ -186,7 +187,7 @@ def financial_report(request):
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
-    orders = Order.objects.filter(status='completed')
+    orders = Order.objects.filter(status='completed').select_related('client', 'assigned_to').order_by('-completed_at')
     
     if date_from:
         orders = orders.filter(completed_at__date__gte=date_from)
@@ -194,7 +195,7 @@ def financial_report(request):
         # Включаем весь день до конца
         orders = orders.filter(completed_at__date__lte=date_to)
     
-    # Статистика
+    # Статистика (считаем по всем заявкам без пагинации)
     total_revenue = orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
     total_completed = orders.count()
     
@@ -207,8 +208,19 @@ def financial_report(request):
     components_revenue = orders.filter(order_type='components').aggregate(
         total=Sum('total_amount'))['total'] or Decimal('0.00')
     
+    # Пагинация (показываем по 20 заявок на странице)
+    paginator = Paginator(orders, 20)
+    page = request.GET.get('page')
+    
+    try:
+        orders_page = paginator.page(page)
+    except PageNotAnInteger:
+        orders_page = paginator.page(1)
+    except EmptyPage:
+        orders_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'orders': orders,
+        'orders': orders_page,
         'total_revenue': total_revenue,
         'total_completed': total_completed,
         'avg_order_value': avg_order_value,
