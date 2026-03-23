@@ -9,7 +9,7 @@
             <h1 class="display-5 fw-bold">
                 <i class="bi bi-cash-stack"></i> Финансовый отчет
             </h1>
-            <div class="col-md-4">
+            <p class="text-muted mb-0">
                 Период отчета:
                 {% if date_from and date_to %}
                     с {{ date_from }} по {{ date_to }}
@@ -17,22 +17,40 @@
                     с {{ date_from }}
                 {% elif date_to %}
                     по {{ date_to }}
-            <div class="col-md-4">
+                {% else %}
                     за все время
                 {% endif %}
             </p>
         </div>
     </div>
-    
-    <!-- Основная статистика -->
-            <div class="col-md-4">
-        <div class="col-md-3">
-            <div class="card stat-card border-success">
+
+    <!-- Основная статистика: 3 карточки в одной строке -->
+    <div class="row mb-4 g-3">
+        <div class="col-12 col-md-4">
+            <div class="card stat-card border-success h-100">
                 <div class="card-body">
                     <h6 class="text-muted">Общая выручка</h6>
                     <p class="stat-value text-success">{{ total_revenue|floatformat:2 }} ₽</p>
                 </div>
             </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Завершено заявок</h6>
+                    <p class="stat-value">{{ total_completed }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card stat-card border-primary h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Средний чек</h6>
+                    <p class="stat-value text-primary">{{ avg_order_value|floatformat:2 }} ₽</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Выручка по типам услуг -->
     <div class="row mb-4">
@@ -42,7 +60,7 @@
                     <h6 class="text-muted">Доход от обслуживания</h6>
                     <p class="stat-value text-info">{{ service_revenue|floatformat:2 }} ₽</p>
                     <small class="text-muted">
-                        {{ service_revenue|floatformat:0|default:"0" }} ₽ / {{ total_revenue|floatformat:0|default:"1" }} ₽ = 
+                        {{ service_revenue|floatformat:0|default:"0" }} ₽ / {{ total_revenue|floatformat:0|default:"1" }} ₽ =
                         {% widthratio service_revenue total_revenue 100 %}%
                     </small>
                 </div>
@@ -54,14 +72,14 @@
                     <h6 class="text-muted">Доход от продажи комплектующих</h6>
                     <p class="stat-value text-warning">{{ components_revenue|floatformat:2 }} ₽</p>
                     <small class="text-muted">
-                        {{ components_revenue|floatformat:0|default:"0" }} ₽ / {{ total_revenue|floatformat:0|default:"1" }} ₽ = 
+                        {{ components_revenue|floatformat:0|default:"0" }} ₽ / {{ total_revenue|floatformat:0|default:"1" }} ₽ =
                         {% widthratio components_revenue total_revenue 100 %}%
                     </small>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Таблица заявок -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -130,7 +148,7 @@
                     {% endif %}
                 </table>
             </div>
-            
+
             <!-- Пагинация -->
             {% if orders.has_other_pages %}
             <nav aria-label="Навигация по страницам">
@@ -198,7 +216,7 @@
                         {% if service_revenue > 0 %}
                         <li class="mb-2">
                             <i class="bi bi-tools text-info"></i>
-                            Доход от сервисного обслуживания: <strong>{{ service_revenue|floatformat:2 }} ₽</strong> 
+                            Доход от сервисного обслуживания: <strong>{{ service_revenue|floatformat:2 }} ₽</strong>
                             ({% widthratio service_revenue total_revenue 100 %}% от общей выручки)
                         </li>
                         {% endif %}
