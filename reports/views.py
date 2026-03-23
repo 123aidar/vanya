@@ -26,6 +26,45 @@ except (ImportError, OSError):
     WEASYPRINT_AVAILABLE = False
 
 
+def _apply_orders_activity_filter(queryset, date_from=None, date_to=None):
+    """Фильтр заявок по дате активности: создана или завершена в периоде."""
+    if date_from:
+        queryset = queryset.filter(
+            Q(created_at__date__gte=date_from) | Q(completed_at__date__gte=date_from)
+        )
+    if date_to:
+        queryset = queryset.filter(
+            Q(created_at__date__lte=date_to) | Q(completed_at__date__lte=date_to)
+        )
+    return queryset
+
+
+def _apply_inventory_activity_filter(queryset, date_from=None, date_to=None):
+    """Фильтр склада по активности: добавление позиции или движение в периоде."""
+    if not date_from and not date_to:
+        return queryset
+
+    movement_filters = Q()
+    if date_from:
+        movement_filters &= Q(created_at__date__gte=date_from)
+    if date_to:
+        movement_filters &= Q(created_at__date__lte=date_to)
+
+    movement_component_ids = StockMovement.objects.filter(movement_filters).values_list('component_id', flat=True)
+
+    created_filters = Q()
+    if date_from:
+        created_filters &= Q(created_at__date__gte=date_from)
+    if date_to:
+        created_filters &= Q(created_at__date__lte=date_to)
+
+    filtered_queryset = queryset.filter(Q(id__in=movement_component_ids) | created_filters).distinct()
+
+    # Если за период нет движений/добавлений, показываем актуальный склад,
+    # чтобы отчет не был пустым при выборе узкого периода.
+    return filtered_queryset if filtered_queryset.exists() else queryset
+
+
 @login_required
 def reports_home(request):
     """Главная страница отчетов."""
@@ -51,12 +90,8 @@ def inventory_report(request):
     
     components = Component.objects.select_related('category').all()
     
-    # Фильтрация по дате создания компонентов
-    if date_from:
-        components = components.filter(created_at__date__gte=date_from)
-    if date_to:
-        # Включаем весь день до конца
-        components = components.filter(created_at__date__lte=date_to)
+    # Фильтрация по активности на складе
+    components = _apply_inventory_activity_filter(components, date_from, date_to)
     
     # Добавляем вычисленные суммы для каждого компонента
     components_with_totals = []
@@ -124,11 +159,8 @@ def orders_report(request):
     
     orders = Order.objects.select_related('client', 'assigned_to').all().order_by('-created_at')
     
-    if date_from:
-        orders = orders.filter(created_at__date__gte=date_from)
-    if date_to:
-        # Включаем весь день до конца
-        orders = orders.filter(created_at__date__lte=date_to)
+    # Фильтрация по дате активности заявки
+    orders = _apply_orders_activity_filter(orders, date_from, date_to)
     
     # Статистика (считаем по всем заявкам без пагинации)
     total_orders = orders.count()
@@ -351,11 +383,8 @@ def inventory_report_excel(request):
     # Данные
     components = Component.objects.select_related('category').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        components = components.filter(created_at__date__gte=date_from)
-    if date_to:
-        components = components.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по активности на складе
+    components = _apply_inventory_activity_filter(components, date_from, date_to)
     
     for component in components:
         total = component.price * component.quantity
@@ -473,11 +502,8 @@ def orders_report_excel(request):
     # Данные
     orders = Order.objects.select_related('client', 'assigned_to').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        orders = orders.filter(created_at__date__gte=date_from)
-    if date_to:
-        orders = orders.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по дате активности заявки
+    orders = _apply_orders_activity_filter(orders, date_from, date_to)
     
     status_dict = dict(Order.STATUS_CHOICES)
     type_dict = dict(Order.ORDER_TYPE_CHOICES)
@@ -600,11 +626,8 @@ def inventory_report_word(request):
     # Получаем данные
     components = Component.objects.select_related('category').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        components = components.filter(created_at__date__gte=date_from)
-    if date_to:
-        components = components.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по активности на складе
+    components = _apply_inventory_activity_filter(components, date_from, date_to)
     
     # Статистика
     total_components = components.count()
@@ -859,11 +882,8 @@ def orders_report_word(request):
     # Получаем данные
     orders = Order.objects.select_related('client', 'assigned_to').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        orders = orders.filter(created_at__date__gte=date_from)
-    if date_to:
-        orders = orders.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по дате активности заявки
+    orders = _apply_orders_activity_filter(orders, date_from, date_to)
     
     # Статистика
     total_orders = orders.count()
@@ -1094,11 +1114,8 @@ def inventory_report_pdf_improved(request):
     
     components = Component.objects.select_related('category').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        components = components.filter(created_at__date__gte=date_from)
-    if date_to:
-        components = components.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по активности на складе
+    components = _apply_inventory_activity_filter(components, date_from, date_to)
     
     # Добавляем вычисленную сумму каждому компоненту
     components_with_total = []
@@ -1153,11 +1170,8 @@ def orders_report_pdf_improved(request):
     
     orders = Order.objects.select_related('client', 'assigned_to').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        orders = orders.filter(created_at__date__gte=date_from)
-    if date_to:
-        orders = orders.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по дате активности заявки
+    orders = _apply_orders_activity_filter(orders, date_from, date_to)
     
     # Статистика
     total_orders = orders.count()
@@ -1255,11 +1269,8 @@ def orders_report_word(request):
     # Получаем данные
     orders = Order.objects.select_related('client', 'assigned_to').all()
     
-    # Применяем фильтрацию по датам
-    if date_from:
-        orders = orders.filter(created_at__date__gte=date_from)
-    if date_to:
-        orders = orders.filter(created_at__date__lte=date_to)
+    # Применяем фильтрацию по дате активности заявки
+    orders = _apply_orders_activity_filter(orders, date_from, date_to)
     
     # Статистика
     total_orders = orders.count()
