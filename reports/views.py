@@ -122,7 +122,7 @@ def orders_report(request):
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
-    orders = Order.objects.select_related('client', 'assigned_to').all()
+    orders = Order.objects.select_related('client', 'assigned_to').all().order_by('-created_at')
     
     if date_from:
         orders = orders.filter(created_at__date__gte=date_from)
@@ -130,7 +130,7 @@ def orders_report(request):
         # Включаем весь день до конца
         orders = orders.filter(created_at__date__lte=date_to)
     
-    # Статистика
+    # Статистика (считаем по всем заявкам без пагинации)
     total_orders = orders.count()
     new_orders = orders.filter(status='new').count()
     in_progress_orders = orders.filter(status='in_progress').count()
@@ -141,8 +141,19 @@ def orders_report(request):
     service_orders = orders.filter(order_type='service').count()
     component_orders = orders.filter(order_type='components').count()
     
+    # Пагинация (показываем по 20 заявок на странице)
+    paginator = Paginator(orders, 20)
+    page = request.GET.get('page')
+    
+    try:
+        orders_page = paginator.page(page)
+    except PageNotAnInteger:
+        orders_page = paginator.page(1)
+    except EmptyPage:
+        orders_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'orders': orders,
+        'orders': orders_page,
         'total_orders': total_orders,
         'new_orders': new_orders,
         'in_progress_orders': in_progress_orders,
@@ -794,6 +805,10 @@ def orders_report_word(request):
         from django.shortcuts import redirect
         return redirect('core:dashboard')
     
+    # Получаем параметры фильтрации
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    
     # Создаем документ
     doc = Document()
     
@@ -843,6 +858,12 @@ def orders_report_word(request):
     
     # Получаем данные
     orders = Order.objects.select_related('client', 'assigned_to').all()
+    
+    # Применяем фильтрацию по датам
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
     
     # Статистика
     total_orders = orders.count()
