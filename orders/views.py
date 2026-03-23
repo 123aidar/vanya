@@ -253,6 +253,29 @@ def receipt_pdf(request, pk):
 
 
 @login_required
+def warranty_certificate(request, pk):
+    """Генерация гарантийного талона."""
+    receipt = get_object_or_404(Receipt, pk=pk)
+    
+    # Клиенты могут скачивать только свои гарантийные талоны
+    if request.user.is_client and receipt.order.client != request.user:
+        messages.error(request, 'У вас нет доступа к этому гарантийному талону.')
+        return redirect('orders:receipt_list')
+    
+    # Получаем позиции заявки
+    items = receipt.order.items.select_related('component').all()
+    
+    context = {
+        'receipt': receipt,
+        'items': items,
+    }
+    
+    # Используем render_to_string для получения чистого HTML без базового шаблона
+    html_string = render_to_string('orders/warranty_certificate.html', context)
+    return HttpResponse(html_string, content_type='text/html')
+
+
+@login_required
 def order_item_delete(request, order_pk, item_pk):
     """Удаление позиции из заявки."""
     order = get_object_or_404(Order, pk=order_pk)

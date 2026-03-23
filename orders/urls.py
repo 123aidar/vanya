@@ -19,4 +19,5 @@ urlpatterns = [
     path('receipts/', views.receipt_list, name='receipt_list'),
     path('receipts/<int:pk>/', views.receipt_detail, name='receipt_detail'),
     path('receipts/<int:pk>/pdf/', views.receipt_pdf, name='receipt_pdf'),
+    path('receipts/<int:pk>/warranty/', views.warranty_certificate, name='warranty_certificate'),
 ]

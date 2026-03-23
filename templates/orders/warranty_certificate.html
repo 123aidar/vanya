@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Гарантийный талон № {{ receipt.receipt_number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 10mm;
+        }
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif;
+            font-size: 10pt;
+            line-height: 1.5;
+            color: #000;
+        }
+        .warranty-container {
+            max-width: 100%;
+            width: 190mm;
+            margin: 0 auto;
+        }
+        /* Шапка */
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .company-name {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #0066cc;
+        }
+        .company-details {
+            font-size: 8pt;
+            line-height: 1.4;
+            color: #333;
+        }
+        /* Заголовок */
+        .warranty-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .warranty-title h1 {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0066cc;
+        }
+        .warranty-number {
+            font-size: 11pt;
+            color: #666;
+        }
+        /* Информационная секция */
+        .info-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-label {
+            font-weight: bold;
+            min-width: 180px;
+            color: #2c3e50;
+        }
+        .info-value {
+            flex: 1;
+            color: #000;
+        }
+        /* Таблица позиций */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 9pt;
+        }
+        .items-table th {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #0052a3;
+        }
+        .items-table td {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .items-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .item-article {
+            font-size: 7.5pt;
+            color: #666;
+            display: block;
+            margin-top: 2px;
+        }
+        /* Условия гарантии */
+        .warranty-terms {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .warranty-terms h3 {
+            font-size: 11pt;
+            margin-bottom: 10px;
+            color: #856404;
+        }
+        .warranty-terms ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        .warranty-terms li {
+            margin-bottom: 5px;
+            font-size: 9pt;
+        }
+        .warranty-terms strong {
+            color: #856404;
+        }
+        /* Исключения из гарантии */
+        .warranty-exclusions {
+            background-color: #f8d7da;
+            border: 2px solid #dc3545;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .warranty-exclusions h3 {
+            font-size: 11pt;
+            margin-bottom: 10px;
+            color: #721c24;
+        }
+        .warranty-exclusions ul {
+            margin-left: 20px;
+        }
+        .warranty-exclusions li {
+            margin-bottom: 5px;
+            font-size: 9pt;
+        }
+        /* Важная информация */
+        .important-note {
+            background-color: #d1ecf1;
+            border: 2px solid #0066cc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .important-note p {
+            margin-bottom: 8px;
+            font-size: 9pt;
+        }
+        .important-note p:last-child {
+            margin-bottom: 0;
+        }
+        /* Подписи */
+        .signatures {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-block {
+            flex: 1;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-size: 8pt;
+            color: #666;
+        }
+        /* Подвал */
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            font-size: 8pt;
+            color: #555;
+        }
+        .footer p {
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="warranty-container">
+        <!-- Шапка компании -->
+        <div class="header">
+            <div class="company-name">ООО НПФ «Роникс-Л»</div>
+            <div class="company-details">
+                ОГРН 1021601978177 | ИНН 1649003743 | КПП 164901001<br>
+                423258, Республика Татарстан, Лениногорский район,<br>
+                город Лениногорск, Крупской ул, д. 4, помещ. 3<br>
+                Телефон поддержки: +7 (XXX) XXX-XX-XX
+            </div>
+        </div>
+        
+        <!-- Заголовок талона -->
+        <div class="warranty-title">
+            <h1>ГАРАНТИЙНЫЙ ТАЛОН</h1>
+            <div class="warranty-number">№ {{ receipt.receipt_number }}</div>
+        </div>
+        
+        <!-- Информация о клиенте и заявке -->
+        <div class="info-section">
+            <div class="info-row">
+                <div class="info-label">Дата выдачи:</div>
+                <div class="info-value">{{ receipt.issue_date|date:"d.m.Y" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Клиент:</div>
+                <div class="info-value">{{ receipt.order.client.get_full_name|default:receipt.order.client.username }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Номер заявки:</div>
+                <div class="info-value">№ {{ receipt.order.id }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Тип работы:</div>
+                <div class="info-value">{{ receipt.order.get_order_type_display }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Описание:</div>
+                <div class="info-value">{{ receipt.order.description|truncatewords:30 }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Срок гарантии:</div>
+                <div class="info-value"><strong style="color: #0066cc;">30 дней с даты выдачи</strong></div>
+            </div>
+        </div>
+        
+        <!-- Таблица выполненных работ и установленных комплектующих -->
+        <h3 style="margin-bottom: 10px; color: #2c3e50;">Выполненные работы и установленные комплектующие:</h3>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 8%;">№</th>
+                    <th style="width: 62%;">Наименование</th>
+                    <th style="width: 15%;">Количество</th>
+                    <th style="width: 15%;">Цена (₽)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td style="text-align: center;">{{ forloop.counter }}</td>
+                    <td>
+                        {{ item.item_name }}
+                        {% if item.component %}
+                            <span class="item-article">Артикул: {{ item.component.article_number }}</span>
+                        {% elif item.service %}
+                            <span class="item-article">Услуга</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {{ item.quantity }} 
+                        {% if item.service and item.service.name == "Прочее" %}
+                            час{% if item.quantity != 1 %}{% if item.quantity < 5 %}а{% else %}ов{% endif %}{% endif %}
+                        {% else %}
+                            шт.
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">{{ item.price|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Условия гарантии -->
+        <div class="warranty-terms">
+            <h3>✓ Гарантийные обязательства</h3>
+            <ul>
+                <li><strong>Срок гарантии:</strong> 30 календарных дней с момента выдачи настоящего талона.</li>
+                <li><strong>Гарантия распространяется на:</strong> все установленные комплектующие и выполненные работы, указанные в таблице выше.</li>
+                <li><strong>В течение гарантийного срока:</strong> осуществляется бесплатный ремонт или замена комплектующих при выявлении заводского брака или недостатков в выполненных работах.</li>
+                <li><strong>Требования для гарантийного обслуживания:</strong> необходимо предъявить оригинал данного гарантийного талона и чек.</li>
+            </ul>
+        </div>
+        
+        <!-- Исключения из гарантии -->
+        <div class="warranty-exclusions">
+            <h3>✗ Гарантия НЕ распространяется на следующие случаи:</h3>
+            <ul>
+                <li>Механические повреждения, включая удары, падения, сколы, трещины.</li>
+                <li>Попадание влаги, жидкостей, повышенная влажность.</li>
+                <li>Воздействие высоких или низких температур, не предусмотренных условиями эксплуатации.</li>
+                <li>Неправильная эксплуатация или использование не по назначению.</li>
+                <li>Самостоятельный ремонт или вмешательство третьих лиц (не авторизованных ООО НПФ «Роникс-Л»).</li>
+                <li>Повреждения, вызванные форс-мажорными обстоятельствами (пожар, наводнение, скачки напряжения и т.д.).</li>
+                <li>Естественный износ комплектующих.</li>
+                <li>Повреждения, возникшие в результате использования нелицензионного или вредоносного программного обеспечения.</li>
+            </ul>
+        </div>
+        
+        <!-- Важная информация -->
+        <div class="important-note">
+            <p><strong>ВАЖНО:</strong> Для получения гарантийного обслуживания необходимо:</p>
+            <p>1. Сохранять данный гарантийный талон и чек в течение всего гарантийного срока.</p>
+            <p>2. При обращении предъявить оригиналы документов.</p>
+            <p>3. Подробно описать возникшую проблему.</p>
+            <p>4. Предоставить устройство для диагностики (при необходимости).</p>
+        </div>
+        
+        <!-- Подписи -->
+        <div class="signatures">
+            <div class="signature-block">
+                <div class="signature-line">
+                    Выдал (Представитель сервисного центра)
+                </div>
+            </div>
+            <div class="signature-block">
+                <div class="signature-line">
+                    Получил (Клиент)
+                </div>
+            </div>
+        </div>
+        
+        <!-- Подвал -->
+        <div class="footer">
+            <p><strong>ООО НПФ «Роникс-Л»</strong></p>
+            <p>423258, Республика Татарстан, Лениногорский район, город Лениногорск, Крупской ул, д. 4, помещ. 3</p>
+            <p>ОГРН 1021601978177 | ИНН 1649003743 | КПП 164901001</p>
+            <p style="margin-top: 10px; font-size: 7pt; color: #888;">Настоящий гарантийный талон действителен только при наличии оригинала чека и в течение указанного гарантийного срока.</p>
+        </div>
+    </div>
+</body>
+</html>
