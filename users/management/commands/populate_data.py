@@ -364,6 +364,13 @@ class Command(BaseCommand):
                 created_at=order_date,
             )
             
+            # Устанавливаем дату завершения для завершенных заявок
+            if status == 'completed':
+                # Завершаем через 1-5 дней после создания
+                completed_delta = timedelta(days=random.randint(1, 5), hours=random.randint(1, 8))
+                order.completed_at = order_date + completed_delta
+                order.save()
+            
             # Если заявка на комплектующие, добавляем позиции
             if order_type == 'components':
                 # Добавляем 2-5 позиций
