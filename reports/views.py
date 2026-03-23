@@ -233,18 +233,13 @@ def financial_report_pdf(request):
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
-    if date_from:
-        date_from = timezone.datetime.strptime(date_from, '%Y-%m-%d').date()
-    if date_to:
-        date_to = timezone.datetime.strptime(date_to, '%Y-%m-%d').date()
-    
     # Фильтруем заявки
     orders = Order.objects.filter(status='completed')
     
     if date_from:
-        orders = orders.filter(completed_at__gte=date_from)
+        orders = orders.filter(completed_at__date__gte=date_from)
     if date_to:
-        orders = orders.filter(completed_at__lte=date_to)
+        orders = orders.filter(completed_at__date__lte=date_to)
     
     # Статистика
     total_revenue = orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
@@ -335,9 +330,9 @@ def inventory_report_excel(request):
     
     # Применяем фильтрацию по датам
     if date_from:
-        components = components.filter(created_at__gte=date_from)
+        components = components.filter(created_at__date__gte=date_from)
     if date_to:
-        components = components.filter(created_at__lte=date_to)
+        components = components.filter(created_at__date__lte=date_to)
     
     for component in components:
         total = component.price * component.quantity
@@ -457,9 +452,9 @@ def orders_report_excel(request):
     
     # Применяем фильтрацию по датам
     if date_from:
-        orders = orders.filter(created_at__gte=date_from)
+        orders = orders.filter(created_at__date__gte=date_from)
     if date_to:
-        orders = orders.filter(created_at__lte=date_to)
+        orders = orders.filter(created_at__date__lte=date_to)
     
     status_dict = dict(Order.STATUS_CHOICES)
     type_dict = dict(Order.ORDER_TYPE_CHOICES)
@@ -584,9 +579,9 @@ def inventory_report_word(request):
     
     # Применяем фильтрацию по датам
     if date_from:
-        components = components.filter(created_at__gte=date_from)
+        components = components.filter(created_at__date__gte=date_from)
     if date_to:
-        components = components.filter(created_at__lte=date_to)
+        components = components.filter(created_at__date__lte=date_to)
     
     # Статистика
     total_components = components.count()
@@ -1068,9 +1063,9 @@ def inventory_report_pdf_improved(request):
     
     # Применяем фильтрацию по датам
     if date_from:
-        components = components.filter(created_at__gte=date_from)
+        components = components.filter(created_at__date__gte=date_from)
     if date_to:
-        components = components.filter(created_at__lte=date_to)
+        components = components.filter(created_at__date__lte=date_to)
     
     # Добавляем вычисленную сумму каждому компоненту
     components_with_total = []
@@ -1127,9 +1122,9 @@ def orders_report_pdf_improved(request):
     
     # Применяем фильтрацию по датам
     if date_from:
-        orders = orders.filter(created_at__gte=date_from)
+        orders = orders.filter(created_at__date__gte=date_from)
     if date_to:
-        orders = orders.filter(created_at__lte=date_to)
+        orders = orders.filter(created_at__date__lte=date_to)
     
     # Статистика
     total_orders = orders.count()
@@ -1229,9 +1224,9 @@ def orders_report_word(request):
     
     # Применяем фильтрацию по датам
     if date_from:
-        orders = orders.filter(created_at__gte=date_from)
+        orders = orders.filter(created_at__date__gte=date_from)
     if date_to:
-        orders = orders.filter(created_at__lte=date_to)
+        orders = orders.filter(created_at__date__lte=date_to)
     
     # Статистика
     total_orders = orders.count()
