@@ -333,8 +333,13 @@ class Command(BaseCommand):
         # Создаём 60-80 заявок за первые 3 месяца 2026 года
         num_orders = random.randint(60, 80)
         for i in range(num_orders):
-            # Случайная дата
-            days_offset = random.randint(0, 90)
+            # Случайная дата (70% заявок - за последние 14 дней, 30% - за весь период)
+            if random.random() < 0.7:
+                # Последние 14 дней
+                days_offset = random.randint(76, 90)  # Март 17-31
+            else:
+                # Весь период
+                days_offset = random.randint(0, 90)
             order_date = start_date + timedelta(days=days_offset)
             
             # Случайный клиент
