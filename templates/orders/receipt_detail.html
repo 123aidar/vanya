@@ -15,9 +15,6 @@
                     <a href="{% url 'orders:receipt_pdf' receipt.pk %}" class="btn btn-primary" target="_blank">
                         <i class="bi bi-file-pdf"></i> PDF
                     </a>
-                    <a href="{% url 'orders:warranty_certificate' receipt.pk %}" class="btn btn-success" target="_blank">
-                        <i class="bi bi-shield-check"></i> Гарантийный талон
-                    </a>
                     <button onclick="window.print()" class="btn btn-outline-secondary">
                         <i class="bi bi-printer"></i> Печать
                     </button>
