@@ -9,7 +9,7 @@
             <h1 class="display-5 fw-bold">
                 <i class="bi bi-cash-stack"></i> Финансовый отчет
             </h1>
-            <p class="text-muted mb-0">
+            <div class="col-md-4">
                 Период отчета:
                 {% if date_from and date_to %}
                     с {{ date_from }} по {{ date_to }}
@@ -17,7 +17,7 @@
                     с {{ date_from }}
                 {% elif date_to %}
                     по {{ date_to }}
-                {% else %}
+            <div class="col-md-4">
                     за все время
                 {% endif %}
             </p>
@@ -25,7 +25,7 @@
     </div>
     
     <!-- Основная статистика -->
-    <div class="row mb-4">
+            <div class="col-md-4">
         <div class="col-md-3">
             <div class="card stat-card border-success">
                 <div class="card-body">
@@ -33,42 +33,6 @@
                     <p class="stat-value text-success">{{ total_revenue|floatformat:2 }} ₽</p>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <h6 class="text-muted">Завершено заявок</h6>
-                    <p class="stat-value">{{ total_completed }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card border-primary">
-                <div class="card-body">
-                    <h6 class="text-muted">Средний чек</h6>
-                    <p class="stat-value text-primary">{{ avg_order_value|floatformat:2 }} ₽</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <h6 class="text-muted">Период</h6>
-                    <p class="stat-value" style="font-size: 1rem;">
-                        {% if date_from and date_to %}
-                            с {{ date_from }}<br>по {{ date_to }}
-                        {% elif date_from %}
-                            с {{ date_from }}
-                        {% elif date_to %}
-                            по {{ date_to }}
-                        {% else %}
-                            Все время
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Выручка по типам услуг -->
     <div class="row mb-4">
