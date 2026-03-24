@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from itertools import groupby
 from .models import Component, Category, Supplier, StockMovement, Service
 from .forms import ComponentForm, CategoryForm, SupplierForm, StockMovementForm
 
@@ -440,9 +441,18 @@ def service_price_list(request):
     
     # Получаем список уникальных категорий
     categories = Service.SERVICE_CATEGORIES
+    category_labels = dict(Service.SERVICE_CATEGORIES)
+    grouped_services = [
+        {
+            'label': category_labels.get(category_value, category_value),
+            'items': list(group_items),
+        }
+        for category_value, group_items in groupby(services, key=lambda service: service.category)
+    ]
     
     context = {
         'services': services,
+        'grouped_services': grouped_services,
         'categories': categories,
         'search': search,
         'selected_category': category,

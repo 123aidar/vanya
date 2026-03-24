@@ -42,16 +42,14 @@
     
     <!-- Список услуг -->
     {% if services %}
-        {% regroup services by category as services_by_category %}
-        
-        {% for category_group in services_by_category %}
+        {% for category_group in grouped_services %}
             <div class="card mb-4">
                 <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid rgba(0, 0, 0, 0.1); border-bottom: 2px solid #dee2e6;">
                     <h4 class="mb-0" style="color: #1a1a1a;">
                         <i class="bi bi-wrench-adjustable-circle"></i> 
-                        {{ category_group.grouper|capfirst }}
+                        {{ category_group.label }}
                         <span class="badge" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white;">
-                            {{ category_group.list|length }}
+                            {{ category_group.items|length }}
                         </span>
                     </h4>
                 </div>
@@ -67,7 +65,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for service in category_group.list %}
+                                {% for service in category_group.items %}
                                     <tr>
                                         <td>
                                             <strong style="font-size: 1.05rem;">{{ service.name }}</strong>

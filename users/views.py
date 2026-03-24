@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import login
 from .models import User
-from .forms import CustomUserCreationForm, CustomUserChangeForm, UserEditFormForManager
+from .forms import CustomUserCreationForm, CustomUserChangeForm, UserEditFormForManager, ManagerUserCreationForm
 
 
 def register(request):
@@ -56,6 +56,25 @@ def user_list(request):
     
     users = User.objects.all()
     return render(request, 'users/user_list.html', {'users': users})
+
+
+@login_required
+def user_create(request):
+    """Создание пользователя сотрудником или администратором."""
+    if not request.user.is_worker and not request.user.is_superuser:
+        messages.error(request, 'У вас нет доступа к этой странице.')
+        return redirect('core:dashboard')
+
+    if request.method == 'POST':
+        form = ManagerUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'Пользователь {user.username} успешно создан!')
+            return redirect('users:user_list')
+    else:
+        form = ManagerUserCreationForm(initial={'role': 'client', 'is_active': True})
+
+    return render(request, 'users/user_create.html', {'form': form})
 
 
 @login_required
