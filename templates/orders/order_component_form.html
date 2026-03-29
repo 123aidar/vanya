@@ -75,4 +75,35 @@
         </div>
     </div>
 </div>
+{{ component_prices|json_script:"component-prices-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const componentSelect = document.getElementById('{{ form.component.id_for_label }}');
+    const priceInput = document.getElementById('{{ form.price.id_for_label }}');
+    const prices = JSON.parse(document.getElementById('component-prices-data').textContent || '{}');
+
+    function syncPrice() {
+        if (!componentSelect || !priceInput) {
+            return;
+        }
+        const selectedId = componentSelect.value;
+        const selectedPrice = prices[selectedId];
+        if (selectedPrice !== undefined) {
+            priceInput.value = Number(selectedPrice).toFixed(2);
+        } else {
+            priceInput.value = '';
+        }
+    }
+
+    if (priceInput) {
+        priceInput.readOnly = true;
+    }
+
+    if (componentSelect) {
+        componentSelect.addEventListener('change', syncPrice);
+    }
+
+    syncPrice();
+});
+</script>
 {% endblock %}

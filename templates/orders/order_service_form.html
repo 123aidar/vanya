@@ -75,4 +75,35 @@
         </div>
     </div>
 </div>
+{{ service_prices|json_script:"service-prices-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const serviceSelect = document.getElementById('{{ form.service.id_for_label }}');
+    const priceInput = document.getElementById('{{ form.price.id_for_label }}');
+    const prices = JSON.parse(document.getElementById('service-prices-data').textContent || '{}');
+
+    function syncPrice() {
+        if (!serviceSelect || !priceInput) {
+            return;
+        }
+        const selectedId = serviceSelect.value;
+        const selectedPrice = prices[selectedId];
+        if (selectedPrice !== undefined) {
+            priceInput.value = Number(selectedPrice).toFixed(2);
+        } else {
+            priceInput.value = '';
+        }
+    }
+
+    if (priceInput) {
+        priceInput.readOnly = true;
+    }
+
+    if (serviceSelect) {
+        serviceSelect.addEventListener('change', syncPrice);
+    }
+
+    syncPrice();
+});
+</script>
 {% endblock %}

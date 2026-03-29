@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from decimal import Decimal
 from .models import Order, OrderItem, Receipt
 from .forms import OrderForm, OrderUpdateForm, OrderItemComponentForm, OrderItemServiceForm, ReceiptForm
 from inventory.models import StockMovement
@@ -120,6 +121,9 @@ def order_add_component(request, pk):
         if form.is_valid():
             item = form.save(commit=False)
             item.order = order
+            # Цена всегда рассчитывается на сервере: базовая + 20%
+            base_price = item.component.price
+            item.price = base_price + (base_price * Decimal('0.20'))
             
             # Уменьшаем количество на складе
             component = item.component
@@ -141,8 +145,17 @@ def order_add_component(request, pk):
             return redirect('orders:order_detail', pk=pk)
     else:
         form = OrderItemComponentForm()
+
+    component_prices = {
+        str(component.id): float(component.price + (component.price * Decimal('0.20')))
+        for component in form.fields['component'].queryset
+    }
     
-    return render(request, 'orders/order_component_form.html', {'form': form, 'order': order})
+    return render(request, 'orders/order_component_form.html', {
+        'form': form,
+        'order': order,
+        'component_prices': component_prices,
+    })
 
 
 @login_required
@@ -160,14 +173,25 @@ def order_add_service(request, pk):
         if form.is_valid():
             item = form.save(commit=False)
             item.order = order
+            # Цена всегда берется из прайс-листа на сервере
+            item.price = item.service.price
             item.save()
             order.calculate_total()
             messages.success(request, 'Услуга успешно добавлена!')
             return redirect('orders:order_detail', pk=pk)
     else:
         form = OrderItemServiceForm()
+
+    service_prices = {
+        str(service.id): float(service.price)
+        for service in form.fields['service'].queryset
+    }
     
-    return render(request, 'orders/order_service_form.html', {'form': form, 'order': order})
+    return render(request, 'orders/order_service_form.html', {
+        'form': form,
+        'order': order,
+        'service_prices': service_prices,
+    })
 
 
 @login_required
