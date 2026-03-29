@@ -31,6 +31,12 @@ class OrderUpdateForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Статус "Выполнено" устанавливается только через отдельное действие завершения.
+        self.fields['status'].choices = [
+            (value, label)
+            for value, label in self.fields['status'].choices
+            if value != 'completed'
+        ]
         # Показываем только работников в списке ответственных
         self.fields['assigned_to'].queryset = User.objects.filter(
             role='worker'
